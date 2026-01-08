@@ -1,0 +1,28 @@
+# Virtual environment
+.venv/
+venv/
+env/
+# other common virtual environment names (e.g., .env)
+
+# Compiled Python files
+*.pyc
+__pycache__/
+
+# IDE-specific files (e.g., PyCharm)
+.idea/
+
+# Flask instance folder (contains sensitive data like config files and databases)
+instance/
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+
+# Development/testing artifacts
+.pytest_cache/
+.coverage
+
+# OS generated files
+.DS_Store
+Thumbs.db
