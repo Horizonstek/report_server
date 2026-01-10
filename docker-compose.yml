@@ -28,7 +28,7 @@ services:
       - ORACLE_POOL_INCREMENT=${ORACLE_POOL_INCREMENT:-1}
       - ORACLE_QUERY_TIMEOUT=${ORACLE_QUERY_TIMEOUT:-30}
     volumes:
-      - ./templates:/app/templates:ro
+      - ./templates:/app/templates
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
