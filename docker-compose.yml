@@ -1,0 +1,64 @@
+services:
+  report-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: report-server
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=5000
+      - DEBUG=${DEBUG:-false}
+      - DEFAULT_PAGE_SIZE=${DEFAULT_PAGE_SIZE:-A4}
+      - DEFAULT_ORIENTATION=${DEFAULT_ORIENTATION:-portrait}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      - MAX_TEMPLATE_SIZE=${MAX_TEMPLATE_SIZE:-5242880}
+      # Oracle Database Settings
+      - ORACLE_ENABLED=${ORACLE_ENABLED:-false}
+      - ORACLE_USER=${ORACLE_USER:-}
+      - ORACLE_PASSWORD=${ORACLE_PASSWORD:-}
+      - ORACLE_DSN=${ORACLE_DSN:-}
+      - ORACLE_HOST=${ORACLE_HOST:-localhost}
+      - ORACLE_PORT=${ORACLE_PORT:-1521}
+      - ORACLE_SERVICE_NAME=${ORACLE_SERVICE_NAME:-}
+      - ORACLE_SID=${ORACLE_SID:-}
+      - ORACLE_POOL_MIN=${ORACLE_POOL_MIN:-1}
+      - ORACLE_POOL_MAX=${ORACLE_POOL_MAX:-5}
+      - ORACLE_POOL_INCREMENT=${ORACLE_POOL_INCREMENT:-1}
+      - ORACLE_QUERY_TIMEOUT=${ORACLE_QUERY_TIMEOUT:-30}
+    volumes:
+      - ./templates:/app/templates:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Development mode with hot reload
+  report-server-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: report-server-dev
+    ports:
+      - "${PORT:-5001}:5000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=5000
+      - DEBUG=true
+      - CORS_ORIGINS=*
+      - ORACLE_ENABLED=${ORACLE_ENABLED:-false}
+      - ORACLE_USER=${ORACLE_USER:-}
+      - ORACLE_PASSWORD=${ORACLE_PASSWORD:-}
+      - ORACLE_DSN=${ORACLE_DSN:-}
+      - ORACLE_HOST=${ORACLE_HOST:-localhost}
+      - ORACLE_PORT=${ORACLE_PORT:-1521}
+      - ORACLE_SERVICE_NAME=${ORACLE_SERVICE_NAME:-}
+    volumes:
+      - .:/app
+    command: ["python", "app.py"]
+    profiles:
+      - dev
