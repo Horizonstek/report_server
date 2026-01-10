@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>example</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm 2cm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 10pt;
+            line-height: 1.7;
+            color: #1c1c1c;
+            background: #ffffff;
+        }
+
+        /* Corporate Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+            border-bottom: 3px double #2c3e50;
+        }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .company-name {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #2c3e50;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .company-tagline {
+            font-size: 9pt;
+            color: #7f8c8d;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        .report-info {
+            text-align: right;
+        }
+
+        .report-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .report-meta {
+            font-size: 9pt;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .report-meta .label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Executive Summary */
+        .executive-summary {
+            background: #f8f9fa;
+            border-left: 4px solid #2c3e50;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+        }
+
+        .executive-summary h2 {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .summary-grid {
+            display: flex;
+            gap: 40px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-item .number {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #2c3e50;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .summary-item .label {
+            font-size: 8pt;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        /* Professional Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        thead {
+            background: #2c3e50;
+        }
+
+        th {
+            color: #ffffff;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 10pt;
+            color: #2c3e50;
+        }
+
+        tbody tr {
+            background: #ffffff;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafbfc;
+        }
+
+        tbody tr:hover {
+            background: #eef2f7;
+        }
+
+        /* Confidentiality Notice */
+        .confidential-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            font-size: 8pt;
+            color: #856404;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .confidential-notice .icon {
+            font-size: 12pt;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 3px double #2c3e50;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-left {
+            font-size: 8pt;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .footer-right {
+            text-align: right;
+            font-size: 8pt;
+            color: #7f8c8d;
+        }
+
+        .page-number {
+            font-size: 10pt;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Print */
+        @media print {
+            thead {
+                background: #2c3e50 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            tbody tr:nth-child(even) {
+                background: #fafbfc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .executive-summary {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .confidential-notice {
+                background: #fff3cd !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="company-info">
+            <div class="company-name">Your Company</div>
+            <div class="company-tagline">Excellence in Business Solutions</div>
+        </div>
+        <div class="report-info">
+            <div class="report-title">example</div>
+            <div class="report-meta">
+                <div><span class="label">Report Date:</span> {{ REPORT_DATE }}</div>
+                <div><span class="label">Generated:</span> {{ REPORT_TIME }}</div>
+                <div><span class="label">Reference:</span> RPT-{{ REPORT_DATE | replace("-", "") }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confidentiality Notice -->
+    <div class="confidential-notice">
+        <span class="icon">🔒</span>
+        <span><strong>CONFIDENTIAL:</strong> This document contains proprietary information intended for authorized recipients only.</span>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="executive-summary">
+        <h2>Executive Summary</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="number">{{ TOTAL_RECORDS }}</div>
+                <div class="label">Total Records</div>
+            </div>
+            <div class="summary-item">
+                <div class="number">{{ REPORT_DATE }}</div>
+                <div class="label">Report Date</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Section -->
+    <div class="section-title">Detailed Report Data</div>
+    
+    <table>
+        <thead>
+            <tr>
+                {% for col in _columns %}<th>{{ col }}</th>{% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                {% for col in _columns %}<td>{{ row[col] | default('') }}</td>{% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div><strong>Your Company Name</strong></div>
+                <div>123 Business Avenue, Suite 100</div>
+                <div>City, State 12345</div>
+                <div>Tel: (555) 123-4567 | Email: reports@company.com</div>
+            </div>
+            <div class="footer-right">
+                <div>Generated by Oracle Report Studio</div>
+                <div class="page-number">Page 1</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
