@@ -148,47 +148,6 @@ Content-Type: application/json
 }
 ```
 
-### Generate PDF (Base64)
-
-```
-POST /api/pdf/generate
-Content-Type: application/json
-
-{
-    "template": "<html><body>{{ content }}</body></html>",
-    "data": { "content": "PDF Content" },
-    "options": {
-        "page_size": "A4",
-        "orientation": "portrait"
-    }
-}
-```
-
-### Generate PDF (File Download)
-
-```
-POST /api/pdf/generate-file
-Content-Type: application/json
-
-{
-    "template": "...",
-    "data": {...},
-    "filename": "report.pdf"
-}
-```
-
-### Preview HTML
-
-```
-POST /api/pdf/preview
-Content-Type: application/json
-
-{
-    "template": "...",
-    "data": {...}
-}
-```
-
 ## Oracle Database Endpoints
 
 These endpoints fetch data from Oracle and generate reports dynamically.

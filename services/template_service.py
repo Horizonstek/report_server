@@ -422,16 +422,39 @@ class TemplateService:
         if '..' in code or '/' in code or '\\' in code:
             raise ValueError("Invalid template code: path traversal not allowed")
         
+        # First, check for a link file to get the query code
+        query_code = self.get_template_query_link(code)
+        if query_code:
+            # Load SQL from the linked query's .sql file
+            sql_path = os.path.join(self.queries_dir, f"{query_code}.sql")
+            if os.path.exists(sql_path):
+                try:
+                    with open(sql_path, 'r', encoding='utf-8') as f:
+                        sql_content = f.read()
+                    return {'sql': sql_content, 'code': query_code}
+                except IOError as e:
+                    raise ValueError(f"Error reading SQL file: {str(e)}")
+        
+        # Fallback: check for {code}.json (legacy format)
         query_path = os.path.join(self.queries_dir, f"{code}.json")
+        if os.path.exists(query_path):
+            try:
+                with open(query_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except (IOError, json.JSONDecodeError) as e:
+                raise ValueError(f"Error reading query file: {str(e)}")
         
-        if not os.path.exists(query_path):
-            return None  # No query linked
+        # Also check for direct {code}.sql file
+        sql_path = os.path.join(self.queries_dir, f"{code}.sql")
+        if os.path.exists(sql_path):
+            try:
+                with open(sql_path, 'r', encoding='utf-8') as f:
+                    sql_content = f.read()
+                return {'sql': sql_content, 'code': code}
+            except IOError as e:
+                raise ValueError(f"Error reading SQL file: {str(e)}")
         
-        try:
-            with open(query_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (IOError, json.JSONDecodeError) as e:
-            raise ValueError(f"Error reading query file: {str(e)}")
+        return None  # No query linked
     
     def delete_query(self, code: str) -> bool:
         """

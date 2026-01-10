@@ -150,6 +150,21 @@ class DatabaseService:
         except Exception as e:
             return False, f"Connection failed: {str(e)}"
     
+    def _sanitize_sql(self, sql: str) -> str:
+        """
+        Sanitize SQL query for execution
+        
+        - Strips trailing semicolons (Oracle driver doesn't accept them)
+        - Strips leading/trailing whitespace
+        """
+        if not sql:
+            return sql
+        # Strip whitespace and trailing semicolons
+        sql = sql.strip()
+        while sql.endswith(';'):
+            sql = sql[:-1].rstrip()
+        return sql
+    
     def execute_query(
         self,
         sql: str,
@@ -178,7 +193,7 @@ class DatabaseService:
             cursor.callTimeout = timeout * 1000  # Convert to milliseconds
             
             try:
-                cursor.execute(sql, params)
+                cursor.execute(self._sanitize_sql(sql), params)
                 
                 # Get column names
                 columns = [col[0] for col in cursor.description] if cursor.description else []
@@ -226,7 +241,7 @@ class DatabaseService:
             cursor.callTimeout = timeout * 1000
             
             try:
-                cursor.execute(sql, params)
+                cursor.execute(self._sanitize_sql(sql), params)
                 
                 columns = []
                 column_types = []
