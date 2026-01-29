@@ -219,30 +219,22 @@
             color: #2c3e50;
         }
 
-        /* Print */
+        /* Print - WeasyPrint handles colors correctly, no print-color-adjust needed */
         @media print {
             thead {
                 background: #2c3e50 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
 
             tbody tr:nth-child(even) {
                 background: #fafbfc !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
 
             .executive-summary {
                 background: #f8f9fa !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
 
             .confidential-notice {
                 background: #fff3cd !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
         }
     </style>

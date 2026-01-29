@@ -39,11 +39,11 @@ RUN useradd --create-home --shell /bin/bash appuser && \
 USER appuser
 
 # Expose port
-EXPOSE 5000
+EXPOSE 443
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" || exit 1
+    CMD python -c "import urllib.request; import ssl; ctx = ssl.create_default_context(); ctx.check_hostname = False; ctx.verify_mode = ssl.CERT_NONE; urllib.request.urlopen('https://localhost:443/weasyprint/health', context=ctx)" || exit 1
 
-# Run the application with gunicorn
-CMD ["gunicorn", "app:create_app()", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120"]
+# Run the application with gunicorn and HTTPS
+CMD ["gunicorn", "app:create_app()", "--bind", "0.0.0.0:443", "--workers", "4", "--timeout", "120", "--certfile", "/app/certs/cert.pem", "--keyfile", "/app/certs/key.pem"]

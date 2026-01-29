@@ -5,11 +5,14 @@ services:
       dockerfile: Dockerfile
     container_name: report-server
     ports:
-      - "${PORT:-5000}:5000"
+      - "${PORT:-443}:443"
     environment:
       - HOST=0.0.0.0
-      - PORT=5000
+      - PORT=443
       - DEBUG=${DEBUG:-false}
+      - USE_SSL=true
+      - SSL_CERT_FILE=/app/certs/cert.pem
+      - SSL_KEY_FILE=/app/certs/key.pem
       - DEFAULT_PAGE_SIZE=${DEFAULT_PAGE_SIZE:-A4}
       - DEFAULT_ORIENTATION=${DEFAULT_ORIENTATION:-portrait}
       - CORS_ORIGINS=${CORS_ORIGINS:-*}
@@ -29,9 +32,10 @@ services:
       - ORACLE_QUERY_TIMEOUT=${ORACLE_QUERY_TIMEOUT:-30}
     volumes:
       - ./templates:/app/templates
+      - ./certs:/app/certs:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; import ssl; ctx = ssl.create_default_context(); ctx.check_hostname = False; ctx.verify_mode = ssl.CERT_NONE; urllib.request.urlopen('https://localhost:443/weasyprint/health', context=ctx)"]
       interval: 30s
       timeout: 10s
       retries: 3

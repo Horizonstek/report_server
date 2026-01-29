@@ -26,3 +26,13 @@ dist/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# SSL Certificates (never commit real certs)
+certs/*.pem
+certs/*.pfx
+certs/*.crt
+certs/*.key
+!certs/README.md
+
+# Environment file with secrets
+.env

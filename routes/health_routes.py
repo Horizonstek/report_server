@@ -12,6 +12,7 @@ db_service = get_database_service(config)
 
 
 @health_bp.route('/health', methods=['GET'])
+@health_bp.route('', methods=['GET'])  # Default route for /weasyprint/
 def health_check():
     """Check if the server is running and all services are available"""
     pdf_service = PdfService()

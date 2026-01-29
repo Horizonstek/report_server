@@ -18,19 +18,28 @@ def create_app():
     # Configure CORS
     CORS(app, origins=config.CORS_ORIGINS)
     
-    # Register blueprints
-    app.register_blueprint(health_bp)
-    app.register_blueprint(pdf_bp, url_prefix='/api/pdf')
-    app.register_blueprint(query_bp, url_prefix='/api/queries')
+    # Register blueprints under /weasyprint/ prefix
+    app.register_blueprint(health_bp, url_prefix='/weasyprint')
+    app.register_blueprint(pdf_bp, url_prefix='/weasyprint/api/pdf')
+    app.register_blueprint(query_bp, url_prefix='/weasyprint/api/queries')
     
     return app
 
 
 if __name__ == '__main__':
+    import ssl
     config = get_config()
     app = create_app()
+    
+    # Configure SSL/HTTPS if certificates are provided
+    ssl_context = None
+    if config.USE_SSL and config.SSL_CERT_FILE and config.SSL_KEY_FILE:
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_context.load_cert_chain(config.SSL_CERT_FILE, config.SSL_KEY_FILE)
+    
     app.run(
         host=config.HOST,
         port=config.PORT,
-        debug=config.DEBUG
+        debug=config.DEBUG,
+        ssl_context=ssl_context
     )

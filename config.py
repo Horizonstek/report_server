@@ -10,8 +10,13 @@ load_dotenv()
 class Config:
     """Base configuration"""
     HOST = os.getenv('HOST', '127.0.0.1')
-    PORT = int(os.getenv('PORT', 5000))
+    PORT = int(os.getenv('PORT', 443))
     DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
+    
+    # HTTPS/SSL Settings
+    SSL_CERT_FILE = os.getenv('SSL_CERT_FILE', None)
+    SSL_KEY_FILE = os.getenv('SSL_KEY_FILE', None)
+    USE_SSL = os.getenv('USE_SSL', 'true').lower() == 'true'
     
     # PDF Settings
     DEFAULT_PAGE_SIZE = os.getenv('DEFAULT_PAGE_SIZE', 'A4')
