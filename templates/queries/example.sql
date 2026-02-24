@@ -1,4 +1,0 @@
--- Name: example
--- Created: 2026-01-10T17:13:18.806Z
-
-SELECT * FROM CLIENT_AS_SAS_130_25.TLR_MODEL;

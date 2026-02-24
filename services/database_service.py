@@ -1,6 +1,7 @@
 """
 Oracle Database Service - Handles database connections and query execution
 """
+import os
 import re
 from typing import Any, Dict, List, Optional, Tuple
 from contextlib import contextmanager
@@ -328,3 +329,123 @@ def get_database_service(config) -> DatabaseService:
     if _db_service is None:
         _db_service = DatabaseService(config)
     return _db_service
+
+
+class DataSourceManager:
+    """
+    Manages multiple named Oracle database connections.
+    Loaded from data_sources.json for Jasper-compatible endpoint.
+    """
+    
+    def __init__(self, config_file: str):
+        """
+        Initialize the data source manager
+        
+        Args:
+            config_file: Path to data_sources.json
+        """
+        self._config_file = config_file
+        self._sources: Dict[str, Dict[str, Any]] = {}
+        self._pools: Dict[str, DatabaseService] = {}
+        self._loaded = False
+    
+    def _load_config(self):
+        """Load data sources from JSON config file"""
+        import json
+        
+        if self._loaded:
+            return
+        
+        if not os.path.exists(self._config_file):
+            self._loaded = True
+            return
+        
+        try:
+            with open(self._config_file, 'r', encoding='utf-8') as f:
+                self._sources = json.load(f)
+            self._loaded = True
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Warning: Failed to load data sources from {self._config_file}: {e}")
+            self._loaded = True
+    
+    def get_source_names(self) -> List[str]:
+        """Get list of configured data source names"""
+        self._load_config()
+        return list(self._sources.keys())
+    
+    def has_source(self, name: str) -> bool:
+        """Check if a named data source exists"""
+        self._load_config()
+        return name in self._sources
+    
+    def _make_config_obj(self, source_config: Dict[str, Any]):
+        """Create a config-like object from a data source dict"""
+        class DSConfig:
+            pass
+        
+        cfg = DSConfig()
+        cfg.ORACLE_ENABLED = True
+        cfg.ORACLE_USER = source_config.get('user', '')
+        cfg.ORACLE_PASSWORD = source_config.get('password', '')
+        cfg.ORACLE_DSN = source_config.get('dsn', '')
+        cfg.ORACLE_HOST = source_config.get('host', 'localhost')
+        cfg.ORACLE_PORT = int(source_config.get('port', 1521))
+        cfg.ORACLE_SERVICE_NAME = source_config.get('service_name', '')
+        cfg.ORACLE_SID = source_config.get('sid', '')
+        cfg.ORACLE_POOL_MIN = int(source_config.get('pool_min', 1))
+        cfg.ORACLE_POOL_MAX = int(source_config.get('pool_max', 5))
+        cfg.ORACLE_POOL_INCREMENT = int(source_config.get('pool_increment', 1))
+        cfg.ORACLE_QUERY_TIMEOUT = int(source_config.get('query_timeout', 30))
+        return cfg
+    
+    def get_service(self, name: str = 'default') -> Optional[DatabaseService]:
+        """
+        Get a DatabaseService for a named data source.
+        Creates the service on first access (lazy init).
+        
+        Args:
+            name: Data source name (from data_sources.json)
+            
+        Returns:
+            DatabaseService instance or None if not configured
+        """
+        self._load_config()
+        
+        if name not in self._sources:
+            return None
+        
+        if name not in self._pools:
+            source_config = self._sources[name]
+            cfg = self._make_config_obj(source_config)
+            db_svc = DatabaseService(cfg)
+            self._pools[name] = db_svc
+        
+        return self._pools[name]
+    
+    def close_all(self):
+        """Close all connection pools"""
+        for svc in self._pools.values():
+            svc.close()
+        self._pools.clear()
+
+
+# Singleton for data source manager
+_ds_manager: Optional[DataSourceManager] = None
+
+
+def get_datasource_manager(config) -> DataSourceManager:
+    """
+    Get or create the data source manager singleton
+    
+    Args:
+        config: Configuration object (needs DATA_SOURCES_FILE)
+        
+    Returns:
+        DataSourceManager instance
+    """
+    global _ds_manager
+    if _ds_manager is None:
+        config_file = getattr(config, 'DATA_SOURCES_FILE', '')
+        _ds_manager = DataSourceManager(config_file)
+    return _ds_manager
+

@@ -1,0 +1,36 @@
+{
+  "name": "Letter",
+  "version": "1.0.0",
+  "description": "Formal letter template with letterhead",
+  "author": "WeasyPrint Samples",
+  "created": "2026-02-23T11:53:29.313566",
+  "updated": "2026-02-23T11:53:29.313566",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "2cm",
+      "right": "1.5cm",
+      "bottom": "2cm",
+      "left": "1.5cm"
+    },
+    "defaultFont": null
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [],
+  "assets": {
+    "fonts": [
+      "assets/fonts/ComingSoon-Regular.ttf",
+      "assets/fonts/Pacifico-Regular.ttf"
+    ],
+    "images": [
+      "assets/images/image-couleurs.png",
+      "assets/images/logo-couleurs.png"
+    ],
+    "styles": [
+      "assets/styles/style.css"
+    ]
+  },
+  "parameters": []
+}

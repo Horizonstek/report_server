@@ -1,0 +1,15 @@
+{
+  "default": {
+    "user": "",
+    "password": "",
+    "dsn": "",
+    "host": "localhost",
+    "port": 1521,
+    "service_name": "",
+    "sid": "",
+    "pool_min": 1,
+    "pool_max": 5,
+    "pool_increment": 1,
+    "query_timeout": 30
+  }
+}

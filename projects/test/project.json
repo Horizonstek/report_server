@@ -1,0 +1,70 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "Multi-section report with sub-reports and typography features",
+  "author": "WeasyPrint Samples",
+  "created": "2026-02-23T17:10:31.943600",
+  "updated": "2026-02-23T18:46:19.765918",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "2cm",
+      "right": "1.5cm",
+      "bottom": "2cm",
+      "left": "1.5cm"
+    },
+    "defaultFont": null
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [
+    {
+      "id": "columns",
+      "name": "Multi-Column Text",
+      "template": "templates/columns.html",
+      "query": "queries/columns.sql"
+    },
+    {
+      "id": "skills",
+      "name": "Features Showcase",
+      "template": "templates/skills.html",
+      "query": "queries/skills.sql"
+    },
+    {
+      "id": "offers",
+      "name": "Pricing Offers",
+      "template": "templates/offers.html",
+      "query": "queries/offers.sql"
+    },
+    {
+      "id": "typography",
+      "name": "Typography Features",
+      "template": "templates/typography.html",
+      "query": "queries/typography.sql"
+    }
+  ],
+  "assets": {
+    "fonts": [
+      "assets/fonts/FiraSans-Bold.ttf",
+      "assets/fonts/FiraSans-Italic.ttf",
+      "assets/fonts/FiraSans-Light.ttf",
+      "assets/fonts/FiraSans-LightItalic.ttf",
+      "assets/fonts/FiraSans-Regular.ttf"
+    ],
+    "images": [
+      "assets/images/heading.svg",
+      "assets/images/internal-links.svg",
+      "assets/images/multi-columns.svg",
+      "assets/images/report-cover.jpg",
+      "assets/images/style.svg",
+      "assets/images/table-content.svg",
+      "assets/images/thumbnail.png",
+      "assets/images/sepro.png"
+    ],
+    "styles": [
+      "assets/styles/report.css"
+    ]
+  },
+  "parameters": []
+}

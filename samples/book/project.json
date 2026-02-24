@@ -1,0 +1,55 @@
+{
+  "name": "Book",
+  "version": "1.0.0",
+  "description": "Book layout with chapters, fonts and images",
+  "author": "WeasyPrint Samples",
+  "created": "2026-02-23T11:53:29.271217",
+  "updated": "2026-02-23T11:53:29.271217",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "2cm",
+      "right": "1.5cm",
+      "bottom": "2cm",
+      "left": "1.5cm"
+    },
+    "defaultFont": null
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [],
+  "assets": {
+    "fonts": [
+      "assets/fonts/OpenDyslexic-Bold.otf",
+      "assets/fonts/OpenDyslexic-Regular.otf",
+      "assets/fonts/SourceSerifPro-Regular.ttf"
+    ],
+    "images": [
+      "assets/images/affiche.jpg",
+      "assets/images/couv1.jpg",
+      "assets/images/couv2.jpg",
+      "assets/images/couv3.jpg",
+      "assets/images/couv4.jpg",
+      "assets/images/frihet.png",
+      "assets/images/inter1.png",
+      "assets/images/inter4.png",
+      "assets/images/inter42.png",
+      "assets/images/john.png",
+      "assets/images/logo-intro.png",
+      "assets/images/outro1.png",
+      "assets/images/outro2.jpg",
+      "assets/images/outro3.jpg",
+      "assets/images/outro4.jpg",
+      "assets/images/pheromones.png",
+      "assets/images/poire.png",
+      "assets/images/seance-de-chasse.jpg",
+      "assets/images/silhouettes_color.jpg"
+    ],
+    "styles": [
+      "assets/styles/book-classical.css",
+      "assets/styles/book.css"
+    ]
+  },
+  "parameters": []
+}

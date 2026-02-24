@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Poster</title>
+    <meta name="description" content="Poster">
+  </head>
+
+  <body>
+    {% set event = rows[0] if rows else {} %}
+    <img id="logo" src="assets/images/gaming-affiche-logo.png" />
+
+    <p id="top-line">{{ event.TAGLINE | default('En live dans 50 villes de France') }}</p>
+
+    <section id="main-title">
+      <p>{{ event.EVENT_TYPE | default('e-sport live') }}</p>
+      <p>{{ event.EVENT_NAME | default('Tournoi retro-gaming') }}</p>
+    </section>
+
+    <p id="description">{{ event.DESCRIPTION | default('Participez à la première édition près de chez vous') }}</p>
+
+    <section id="date">
+      <article>
+        <p>{{ event.EVENT_DATE | default('25 juin') }}</p><p>{{ event.EVENT_YEAR | default('2021') }}</p>
+      </article>
+      <article>
+        <p>{{ event.VENUE_NAME | default('La souris verte') }}</p><p>{{ event.VENUE_CITY | default('Épinal') }}</p>
+      </article>
+    </section>
+
+    <section id="sponsors">
+      <ul>
+        <li><img src="assets/images/logo-mc.png" /></li>
+        <li><img src="assets/images/logo-stella.png" /></li>
+        <li><img src="assets/images/logo-rhino.png" /></li>
+        <li><img src="assets/images/logo-fleurexpo.png" /></li>
+        <li><img src="assets/images/logo-fiac.png" /></li>
+      </ul>
+    </section>
+
+    <p id="address">{{ event.ADDRESS | default('La Souris Verte — 17 rue des États-Unis, 88000 Épinal — www.ticketrocknight.org') }}</p>
+  </body>
+</html>

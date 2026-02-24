@@ -48,6 +48,12 @@ class Config:
     
     # Enable/disable Oracle connectivity
     ORACLE_ENABLED = os.getenv('ORACLE_ENABLED', 'false').lower() == 'true'
+    
+    # Named data sources file (for Jasper-compatible endpoint)
+    DATA_SOURCES_FILE = os.getenv(
+        'DATA_SOURCES_FILE', 
+        os.path.join(os.path.dirname(__file__), 'data_sources.json')
+    )
 
 
 class DevelopmentConfig(Config):

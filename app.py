@@ -6,8 +6,9 @@ from flask_cors import CORS
 
 from config import get_config
 from routes.pdf_routes import pdf_bp
-from routes.query_routes import query_bp
 from routes.health_routes import health_bp
+from routes.project_routes import project_bp
+from routes.report_routes import report_bp
 
 
 def create_app():
@@ -21,7 +22,8 @@ def create_app():
     # Register blueprints under /weasyprint/ prefix
     app.register_blueprint(health_bp, url_prefix='/weasyprint')
     app.register_blueprint(pdf_bp, url_prefix='/weasyprint/api/pdf')
-    app.register_blueprint(query_bp, url_prefix='/weasyprint/api/queries')
+    app.register_blueprint(project_bp, url_prefix='/weasyprint/api/projects')
+    app.register_blueprint(report_bp, url_prefix='/weasyprint/report')
     
     return app
 

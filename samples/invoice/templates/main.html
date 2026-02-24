@@ -1,0 +1,104 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+    <meta name="description" content="Invoice demo sample">
+  </head>
+
+  <body>
+    <h1>Invoice</h1>
+
+    <aside>
+      <address id="from">
+        {% if rows and rows[0].COMPANY_NAME is defined %}
+        {{ rows[0].COMPANY_NAME }}
+        {{ rows[0].COMPANY_ADDRESS | default('') }}
+        {% else %}
+        WeasyPrint
+        26 rue Emile Decorps
+        69100 Villeurbanne
+        France
+        {% endif %}
+      </address>
+
+      <address id="to">
+        {% if rows and rows[0].CLIENT_NAME is defined %}
+        {{ rows[0].CLIENT_NAME }}
+        {{ rows[0].CLIENT_ADDRESS | default('') }}
+        {% else %}
+        Our awesome developers
+        From all around the world
+        Earth
+        {% endif %}
+      </address>
+    </aside>
+
+    <dl id="informations">
+      <dt>Invoice number</dt>
+      <dd>{{ invoice_number | default('12345') }}</dd>
+      <dt>Date</dt>
+      <dd>{{ REPORT_DATE | default('March 31, 2018') }}</dd>
+    </dl>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if rows %}
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.DESCRIPTION }}</td>
+          <td>€{{ "%.2f" | format(row.PRICE) }}</td>
+          <td>{{ row.QUANTITY }}</td>
+          <td>€{{ "%.2f" | format(row.SUBTOTAL) }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td>Website design</td>
+          <td>€34.20</td>
+          <td>100</td>
+          <td>€3,420.00</td>
+        </tr>
+        <tr>
+          <td>Website development</td>
+          <td>€45.50</td>
+          <td>100</td>
+          <td>€4,550.00</td>
+        </tr>
+        <tr>
+          <td>Website integration</td>
+          <td>€25.75</td>
+          <td>100</td>
+          <td>€2,575.00</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+
+    <footer>
+      <table id="total">
+        <thead>
+          <tr>
+            <th>Due by</th>
+            <th>Account number</th>
+            <th>Total due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ due_date | default('May 10, 2018') }}</td>
+            <td>{{ account_number | default('132 456 789 012') }}</td>
+            <td>{% if rows %}€{{ "%.2f" | format(rows | sum(attribute='SUBTOTAL')) }}{% else %}€10,545.00{% endif %}</td>
+          </tr>
+        </tbody>
+      </table>
+    </footer>
+  </body>
+</html>

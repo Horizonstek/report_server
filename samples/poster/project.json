@@ -1,0 +1,42 @@
+{
+  "name": "Poster",
+  "version": "1.0.0",
+  "description": "Poster/flyer design template",
+  "author": "WeasyPrint Samples",
+  "created": "2026-02-23T11:53:29.335471",
+  "updated": "2026-02-23T11:53:29.335471",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "2cm",
+      "right": "1.5cm",
+      "bottom": "2cm",
+      "left": "1.5cm"
+    },
+    "defaultFont": null
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [],
+  "assets": {
+    "fonts": [
+      "assets/fonts/archivoblack-regular.ttf"
+    ],
+    "images": [
+      "assets/images/background.jpg",
+      "assets/images/gaming-affiche-logo.png",
+      "assets/images/logo-fiac.png",
+      "assets/images/logo-fleurexpo.png",
+      "assets/images/logo-mc.png",
+      "assets/images/logo-rhino.png",
+      "assets/images/logo-stella.png"
+    ],
+    "styles": [
+      "assets/styles/common.css",
+      "assets/styles/flyer.css",
+      "assets/styles/poster.css"
+    ]
+  },
+  "parameters": []
+}

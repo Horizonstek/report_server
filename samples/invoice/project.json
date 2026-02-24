@@ -1,0 +1,34 @@
+{
+  "name": "Invoice",
+  "version": "1.0.0",
+  "description": "Professional invoice template",
+  "author": "WeasyPrint Samples",
+  "created": "2026-02-23T11:53:29.296787",
+  "updated": "2026-02-23T11:53:29.296787",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "2cm",
+      "right": "1.5cm",
+      "bottom": "2cm",
+      "left": "1.5cm"
+    },
+    "defaultFont": null
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [],
+  "assets": {
+    "fonts": [
+      "assets/fonts/pacifico.ttf",
+      "assets/fonts/SourceSans3-Bold.ttf",
+      "assets/fonts/SourceSans3-Regular.ttf"
+    ],
+    "images": [],
+    "styles": [
+      "assets/styles/invoice.css"
+    ]
+  },
+  "parameters": []
+}
