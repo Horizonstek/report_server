@@ -1,0 +1,16 @@
+<div class="subreport subreport-COMPANY_FOOTER">
+    {% set footer = rows[0] if rows else {} %}
+    <div class="company-footer">
+        <div class="flex-row">
+            <div class="text-right" style="flex: 1;">
+                المستخدم / User: <strong>{{ USER_NAME | default('') }}</strong>
+            </div>
+            <div class="text-center" style="flex: 1; font-weight: bold; color: var(--primary-color);">
+                {{ footer.FOOTER | default('') }}
+            </div>
+            <div class="text-left" style="flex: 1;" dir="ltr">
+                {{ REPORT_DATETIME }}
+            </div>
+        </div>
+    </div>
+</div>

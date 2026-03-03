@@ -1,0 +1,51 @@
+<div class="subreport subreport-FOOTER">
+    {% set summary = rows[0] if rows else {} %}
+    <div class="summary-container">
+        
+        <!-- Remarks / Details Placeholder -->
+        <div style="flex: 1; margin-left: 20px;">
+            <div class="info-section" style="height: 100%;">
+                <div class="info-header">الملاحظات / Remarks</div>
+                <div class="info-content">
+                    {{ summary.REMARKS | default('') }}
+                </div>
+            </div>
+            
+            {% if summary.P_N_ARABIC_TAR_CUR %}
+            <div style="margin-top: 10px; font-weight: bold;">
+                فقط: {{ summary.P_N_ARABIC_TAR_CUR }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Totals Table -->
+        <div class="summary-amounts">
+            <table class="summary-table">
+                <tr>
+                    <th>المجموع <small>/ Subtotal</small></th>
+                    <td dir="ltr">{{ summary.AMOUNT | number_format(2) | default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <th>إجمالي الخصم <small>/ Total Disc</small></th>
+                    <td dir="ltr">{{ summary.DISCOUNT | number_format(2) | default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <th>الضريبة <small>/ VAT Tax</small></th>
+                    <td dir="ltr">{{ summary.VAT_PRICE | number_format(2) | default('0.00') }}</td>
+                </tr>
+                <tr class="total-row">
+                    <th>الإجمالي <small>/ Grand Total</small></th>
+                    <td dir="ltr">{{ summary.TOTAL_AMOUNT | number_format(2) | default('0.00') }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Signatures section -->
+    <div class="signatures">
+        <div class="signature-box">المستلم<br>Receiver</div>
+        <div class="signature-box">المندوب<br>Representative</div>
+        <div class="signature-box">المحاسب<br>Accountant</div>
+        <div class="signature-box">المدير<br>Manager</div>
+    </div>
+</div>

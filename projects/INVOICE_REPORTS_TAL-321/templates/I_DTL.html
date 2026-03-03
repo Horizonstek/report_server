@@ -1,0 +1,40 @@
+<div class="subreport subreport-I_DTL">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th width="5%">مـ<br>No</th>
+                <th width="15%">رقم الصنف<br>Item No</th>
+                <th width="35%">اسم الصنف<br>Item Name</th>
+                <th width="10%">الوحدة<br>Unit</th>
+                <th width="8%">الكمية<br>Qty</th>
+                <th width="9%">السعر<br>Price</th>
+                <th width="8%">الخصم<br>Disc</th>
+                <th width="10%">الإجمالي<br>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in rows %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td dir="ltr">{{ item.ITEM_NO }}</td>
+                <td class="text-right">{{ item.ITEM_NAME_A }}
+                    {% if item.BATCH_NO %}
+                    <br><small class="text-light">الباتش: {{ item.BATCH_NO }} | الصلاحية: {{ item.EXPIRY_DATE | date('YYYY-MM') }}</small>
+                    {% endif %}
+                </td>
+                <td>{{ item.UNIT_NAME }}</td>
+                <td>{{ item.QUANTITY }}
+                    {% if item.FREE_UNIT > 0 %} <br><small>م: {{ item.FREE_UNIT }}</small> {% endif %}
+                </td>
+                <td dir="ltr">{{ item.UNIT_PRICE | number_format(2) }}</td>
+                <td dir="ltr">{{ item.DISCOUNT_VALUE | number_format(2) }}</td>
+                <td dir="ltr" class="font-bold">{{ item.TOTAL_END_PRICE | number_format(2) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="text-center text-light">لا توجد أصناف / No items</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

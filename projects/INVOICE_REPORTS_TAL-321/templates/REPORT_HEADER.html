@@ -1,0 +1,65 @@
+<div class="subreport subreport-REPORT_HEADER">
+    {% set info = rows[0] if rows else {} %}
+    <div class="grid grid-2">
+        <!-- Customer Details -->
+        <div class="info-section">
+            <div class="info-header">
+                {{ info.SUPPLIER_LABEL_NO | default('العميل') }} / Customer
+            </div>
+            <div class="info-content">
+                <div class="info-row">
+                    <div class="info-label">رقم الحساب:</div>
+                    <div>{{ info.CUST_ID | default('') }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">اسم الحساب:</div>
+                    <div><strong>{{ info.CUST_NAME | default('') }}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">الرقم الضريبي:</div>
+                    <div dir="ltr">{{ info.CUST_VAT_NO | default('') }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">ت.التجاري:</div>
+                    <div dir="ltr">{{ info.CUST_COMMERCE_REGISTER | default('') }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">العنوان:</div>
+                    <div>
+                        {{ info.CUST_STREET_NAME | default('') }} {{ info.CUST_DISTRICT_NAME | default('') }}
+                        {{ info.CUST_CITY_NAME | default('') }} {{ info.CUST_ZIP_CODE | default('') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplier Details -->
+        <div class="info-section">
+            <div class="info-header">
+                {{ info.SUPPLIER_LABEL | default('بواسطة') }} / By
+            </div>
+            <div class="info-content">
+                <div class="info-row">
+                    <div class="info-label">اسم البائع:</div>
+                    <div><strong>{{ info.SUP_NAME | default('') }}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">الرقم الضريبي:</div>
+                    <div dir="ltr">{{ info.SUP_VAT_NO | default('') }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">طريقة الدفع:</div>
+                    <div>{{ info.CASH_TYPE_NAME | default('') }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">الصندوق/البنك:</div>
+                    <div>{{ info.BOX_NAME | default('') }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">المندوب:</div>
+                    <div>{{ info.SR_NAME | default('') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

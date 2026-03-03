@@ -4,9 +4,45 @@ Sub-Report Service - Handles sub-report rendering and composition
 import os
 import re
 from typing import Dict, Any, List, Optional, Set
-from jinja2 import Environment, FileSystemLoader, BaseLoader, TemplateError
+from jinja2 import Environment, FileSystemLoader, BaseLoader, TemplateError, ChainableUndefined
 from markupsafe import Markup
 
+
+class SilentUndefined(ChainableUndefined):
+    """Custom Undefined that silently handles all operations (comparisons, arithmetic, etc.)
+    This mimics Jasper's tolerant null handling where missing fields don't cause errors."""
+    def __str__(self): return ''
+    def __html__(self): return ''
+    def __bool__(self): return False
+    def __int__(self): return 0
+    def __float__(self): return 0.0
+    def __gt__(self, other): return False
+    def __lt__(self, other): return False
+    def __ge__(self, other): return False
+    def __le__(self, other): return False
+    def __eq__(self, other): return other is None or isinstance(other, SilentUndefined)
+    def __ne__(self, other): return not self.__eq__(other)
+    def __add__(self, other): return other
+    def __radd__(self, other): return other
+    def __sub__(self, other): return 0
+    def __rsub__(self, other): return other
+    def __mul__(self, other): return 0
+    def __rmul__(self, other): return 0
+    def __iter__(self): return iter([])
+    def __len__(self): return 0
+
+
+class CaseInsensitiveSubreports:
+    def __init__(self, data):
+        self._data = {k.lower(): v for k, v in data.items()}
+    def __getattr__(self, name):
+        return self._data.get(name.lower(), '')
+    def __getitem__(self, name):
+        return self._data.get(name.lower(), '')
+    def get(self, name, default=''):
+        return self._data.get(name.lower(), default)
+    def __contains__(self, name):
+        return name.lower() in self._data
 
 class SubReportService:
     """Service for rendering and composing sub-reports within a project"""
@@ -29,7 +65,8 @@ class SubReportService:
         # Create Jinja2 environment with project template loader
         self.env = Environment(
             loader=FileSystemLoader(self.templates_dir),
-            autoescape=True
+            autoescape=True,
+            undefined=SilentUndefined
         )
         
         # Register custom filters and globals
@@ -45,26 +82,30 @@ class SubReportService:
         
         # Number formatting
         self.env.filters['number_format'] = lambda value, decimals=2: (
-            f"{float(value):,.{decimals}f}" if value is not None else ''
+            f"{float(value):,.{decimals}f}" if value is not None and str(value).strip() != '' else ''
         )
         
         # Currency formatting
         self.env.filters['currency'] = lambda value, symbol='$', decimals=2: (
-            f"{symbol}{float(value):,.{decimals}f}" if value is not None else ''
+            f"{symbol}{float(value):,.{decimals}f}" if value is not None and str(value).strip() != '' else ''
         )
         
-        # Date formatting
+        # Date formatting - register as both 'date_format' and 'date' (templates use | date(...))
         self.env.filters['date_format'] = self._format_date
+        self.env.filters['date'] = self._format_date
         
         # Percentage formatting
         self.env.filters['percentage'] = lambda value, decimals=1: (
-            f"{float(value):.{decimals}f}%" if value is not None else ''
+            f"{float(value):.{decimals}f}%" if value is not None and str(value).strip() != '' else ''
         )
         
         # Safe default for None values
         self.env.filters['default_if_none'] = lambda value, default='': (
             default if value is None else value
         )
+        
+        # Asset URL filter (so templates can use {{ value | asset_url }})
+        self.env.filters['asset_url'] = self._asset_url
     
     def _register_custom_globals(self):
         """Register global variables and functions"""
@@ -77,11 +118,25 @@ class SubReportService:
         self.env.globals['asset_url'] = self._asset_url
     
     def _format_date(self, value, format_str='%Y-%m-%d'):
-        """Format a date value"""
+        """Format a date value. Supports both Python strftime and Jasper/moment-style formats."""
         from datetime import datetime
         
-        if value is None:
+        if value is None or str(value).strip() == '':
             return ''
+        
+        # Convert Jasper/moment-style format to Python strftime
+        # e.g. 'YYYY-MM-DD' -> '%Y-%m-%d', 'YYYY-MM' -> '%Y-%m'
+        if 'YYYY' in format_str or 'MM' in format_str or 'DD' in format_str:
+            format_str = (format_str
+                .replace('YYYY', '%Y')
+                .replace('YY', '%y')
+                .replace('MM', '%m')
+                .replace('DD', '%d')
+                .replace('HH', '%H')
+                .replace('mm', '%M')
+                .replace('ss', '%S')
+            )
+        
         if isinstance(value, str):
             try:
                 value = datetime.fromisoformat(value.replace('Z', '+00:00'))
@@ -91,16 +146,36 @@ class SubReportService:
             return value.strftime(format_str)
         return str(value)
     
-    def _asset_url(self, relative_path: str) -> str:
+    def _asset_url(self, relative_path) -> str:
         """
-        Convert a relative asset path to an absolute file URL
+        Convert a relative asset path to an absolute file URL,
+        or convert raw binary image data (BLOB) to a base64 data URI.
         
         Args:
-            relative_path: Path relative to project assets folder
+            relative_path: Path relative to project assets folder, or raw image bytes from DB
             
         Returns:
-            Absolute file URL for the asset
+            Absolute file URL for the asset, or a base64 data URI
         """
+        import base64
+        
+        # If the value is raw binary image data (BLOB from DB), return a data URI
+        if isinstance(relative_path, (bytes, bytearray)):
+            mime_type = 'application/octet-stream'
+            if relative_path[:8] == b'\x89PNG\r\n\x1a\n':
+                mime_type = 'image/png'
+            elif relative_path[:2] == b'\xff\xd8':
+                mime_type = 'image/jpeg'
+            elif relative_path[:6] in (b'GIF87a', b'GIF89a'):
+                mime_type = 'image/gif'
+            elif relative_path[:4] == b'RIFF' and relative_path[8:12] == b'WEBP':
+                mime_type = 'image/webp'
+            
+            b64 = base64.b64encode(relative_path).decode('ascii')
+            return f"data:{mime_type};base64,{b64}"
+        
+        relative_path = str(relative_path)
+        
         # Handle paths with or without assets/ prefix
         if relative_path.startswith('assets/'):
             full_path = os.path.join(self.project_path, relative_path)
@@ -257,7 +332,7 @@ class SubReportService:
         # Build complete data context
         render_data = {
             **main_data,
-            'subreports': rendered_subreports,
+            'subreports': CaseInsensitiveSubreports(rendered_subreports),
             'REPORT_DATE': datetime.now().strftime('%Y-%m-%d'),
             'REPORT_TIME': datetime.now().strftime('%H:%M:%S'),
             'REPORT_DATETIME': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -269,6 +344,17 @@ class SubReportService:
             render_data['row_count'] = len(main_data['rows'])
             if len(main_data['rows']) > 0:
                 render_data['_columns'] = list(main_data['rows'][0].keys())
+                # Flatten first row fields into context so templates can use
+                # {{ TITLE }} or {{ title }} directly instead of {{ rows[0].TITLE }}
+                first_row = main_data['rows'][0]
+                for col_name, col_value in first_row.items():
+                    # Add as original case (e.g. TITLE)
+                    if col_name not in render_data:
+                        render_data[col_name] = col_value
+                    # Add as lowercase (e.g. title)
+                    lower_name = col_name.lower()
+                    if lower_name not in render_data:
+                        render_data[lower_name] = col_value
         
         # Inject project styles if configured
         rendered_html = template.render(**render_data)

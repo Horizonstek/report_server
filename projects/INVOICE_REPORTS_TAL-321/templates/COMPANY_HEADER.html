@@ -1,0 +1,38 @@
+<div class="subreport subreport-COMPANY_HEADER">
+    {% set header = rows[0] if rows else {} %}
+    <div class="company-header flex-row">
+        <div style="flex: 1;">
+            {% if header.LOGO %}
+            <img src="{{ header.LOGO | asset_url }}" alt="Company Logo" style="max-height: 80px; max-width: 150px;">
+            {% endif %}
+        </div>
+        
+        <div class="invoice-title" style="flex: 1;">
+            {{ header.INV_TITLE_A | default('فاتورة ضريبية') }}
+            <br>
+            <span style="font-size: 12pt; font-weight: normal;">Tax Invoice</span>
+        </div>
+        
+        <div class="text-left" style="flex: 1;">
+            <div class="company-header-main">{{ header.COMP_NAME_A | default('') }}</div>
+            <div class="company-header-sub">
+                رقم التليفون: <span dir="ltr">{{ header.PHONE | default('') }}</span><br>
+                الرقم الضريبي: <span dir="ltr">{{ header.VAT_NO | default('') }}</span><br>
+                السجل التجاري: <span dir="ltr">{{ header.COMMERCE_REGISTER | default('') }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Invoice Details Bar -->
+    <div class="grid grid-3" style="background-color: var(--bg-light); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+        <div>
+            <span class="info-label">رقم المستند / Doc No:</span> <strong>{{ P_INVOICE_ID }}</strong>
+        </div>
+        <div>
+            <span class="info-label">تاريخ المستند / Doc Date:</span> <strong>{{ header.INVOICE_DATE | date('YYYY-MM-DD') }}</strong>
+        </div>
+        <div>
+            <span class="info-label">المستخدم / User:</span> <strong>{{ USER_NAME | default('') }}</strong>
+        </div>
+    </div>
+</div>

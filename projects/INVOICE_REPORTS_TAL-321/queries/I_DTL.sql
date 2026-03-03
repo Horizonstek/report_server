@@ -1,0 +1,67 @@
+select
+	INV_DTL.*
+from
+	(
+	select 
+		case when I.INVOICE_TYPE > 20 then 
+			IT.DESCRIPTION
+		else
+			to_char(ID.ITEM_UNIT_ID)
+		end as ITEM_NO,
+		--IT.ITEM_NAME as ITEM_NAME,
+		(case when nvl(I.SERVICE_INVOICE, 'N') = 'N' then  IT.ITEM_NAME else ID.ITEM_NAME end
+		|| nvl2(IB.ITEM_BARCODE_NOTE, ' - ' || IB.ITEM_BARCODE_NOTE, '')) as ITEM_NAME,
+		U.UNIT_NAME as UNIT_NAME,
+		ID.QUANTITY as QUANTITY,
+		ID.FREE_QUANTITY as FREE_QUANTITY,
+		ID.UNIT_PRICE as UNIT_PRICE,
+		ID.DISCOUNT as DISCOUNT,
+		case when I.VAT_CH = 'Y' then
+			ID.END_PRICE * RPT_HELPER_PKG.VAT_RATE($P{P_SCHEMA_NAME}, ID.SUB_COMPANY_NO, I.COMPANY_NO, ID.ITEM_ID, I.INVOICE_DATE)
+		else
+			0
+		end as VAT_PRICE,
+		case when I.VAT_CH = 'Y' then
+			ID.END_PRICE * (1 + RPT_HELPER_PKG.VAT_RATE($P{P_SCHEMA_NAME}, ID.SUB_COMPANY_NO, I.COMPANY_NO, ID.ITEM_ID, I.INVOICE_DATE))
+		else
+			ID.END_PRICE
+		end as END_PRICE,
+		row_number() over (order by ID.INVOICE_DTL_INDEX) as INVOICE_DTL_INDEX,
+		IU.UNIT_QUANTITY,
+		count(*) over () as ROWS_COUNT,
+		'PRO.' || to_char(INVB.PRODUCTION_DATE, 'DD/MM/YYYY') || chr(10) || 'EXP.' || to_char(INVB.EXPIRATION_DATE, 'DD/MM/YYYY') as ITEM_DATE
+	from
+		$P!{P_SCHEMA_NAME}.INVOICE_DTL ID
+		left join $P!{P_SCHEMA_NAME}.INVOICE I
+			on ID.INVOICE_ID = I.INVOICE_ID
+			and ID.INVOICE_TYPE = I.INVOICE_TYPE
+		left join $P!{P_SCHEMA_NAME}.ITEM_UNIT IU
+			on ID.ITEM_UNIT_ID = IU.ITEM_UNIT_ID
+			and IU.COMPANY_NO = ID.SUB_COMPANY_NO
+		left join $P!{P_SCHEMA_NAME}.ITEM IT
+			on IU.ITEM_ID = IT.ITEM_ID
+			and IU.COMPANY_NO = IT.COMPANY_NO
+		left join $P!{P_SCHEMA_NAME}.UNIT U
+			on IU.UNIT_ID = U.UNIT_ID
+		left join $P!{P_SCHEMA_NAME}.INVENTORY_BATCH INVB
+			on nvl(ID.STORE_NO, I.STORE_NO) = INVB.STORE_NO
+			and	ID.BATCH_NO = INVB.BATCH_NO
+			and ID.ITEM_ID = INVB.ITEM_ID
+
+		left join ( 
+		select 
+			ITEM_UNIT_ID,
+			max(ITEM_BARCODE) as ITEM_BARCODE,
+			max(NOTE) keep (dense_rank first order by ITEM_BARCODE desc) as ITEM_BARCODE_NOTE,
+			COMPANY_NO 
+		from $P!{P_SCHEMA_NAME}.ITEM_BARCODE
+		group by ITEM_UNIT_ID, COMPANY_NO 
+		) IB 
+			on IB.ITEM_UNIT_ID = IU.ITEM_UNIT_ID 
+			and IB.COMPANY_NO = IU.COMPANY_NO
+	where
+		I.INVOICE_ID = $P{P_INVOICE_ID}
+		and I.INVOICE_TYPE = $P{P_INVOICE_TYPE}
+	) INV_DTL
+order by
+	INV_DTL.INVOICE_DTL_INDEX

@@ -326,12 +326,25 @@ def remove_subreport(project_id, subreport_id):
         project = project_service.load_project(project_id)
         config = project['config']
         
+        # Find the subreport to get template and query paths
+        subreport_to_delete = next((sr for sr in config.get('subReports', []) if sr.get('id') == subreport_id), None)
+
         # Filter out the sub-report
         original_count = len(config.get('subReports', []))
         config['subReports'] = [
             sr for sr in config.get('subReports', [])
             if sr.get('id') != subreport_id
         ]
+        
+        if subreport_to_delete:
+            if subreport_to_delete.get('template'):
+                template_path = os.path.join(project['path'], subreport_to_delete['template'])
+                if os.path.exists(template_path):
+                    os.remove(template_path)
+            if subreport_to_delete.get('query'):
+                query_path = os.path.join(project['path'], subreport_to_delete['query'])
+                if os.path.exists(query_path):
+                    os.remove(query_path)
         
         if len(config['subReports']) == original_count:
             return jsonify({'error': f"Sub-report '{subreport_id}' not found"}), 404
@@ -619,6 +632,16 @@ def render_project(project_id):
         
         if main_data is None:
             main_data = {}
+            
+        # Auto-inject main query fields into params for subreports
+        if main_data and main_data.get('rows') and len(main_data['rows']) > 0:
+            first_row = main_data['rows'][0]
+            for key, value in first_row.items():
+                if value is not None:
+                    if key not in params:
+                        params[key] = value
+                    if f"P_{key}" not in params:
+                        params[f"P_{key}"] = value
         
         # Get sub-report data - either from request or execute queries
         subreport_data = data.get('subreportData', {})
@@ -705,6 +728,16 @@ def render_project_file(project_id):
         
         if main_data is None:
             main_data = {}
+            
+        # Auto-inject main query fields into params for subreports
+        if main_data and main_data.get('rows') and len(main_data['rows']) > 0:
+            first_row = main_data['rows'][0]
+            for key, value in first_row.items():
+                if value is not None:
+                    if key not in params:
+                        params[key] = value
+                    if f"P_{key}" not in params:
+                        params[f"P_{key}"] = value
         
         # Get sub-report data
         subreport_data = data.get('subreportData', {})
@@ -792,6 +825,16 @@ def preview_project(project_id):
         
         if main_data is None:
             main_data = {}
+            
+        # Auto-inject main query fields into params for subreports
+        if main_data and main_data.get('rows') and len(main_data['rows']) > 0:
+            first_row = main_data['rows'][0]
+            for key, value in first_row.items():
+                if value is not None:
+                    if key not in params:
+                        params[key] = value
+                    if f"P_{key}" not in params:
+                        params[f"P_{key}"] = value
         
         # Get sub-report data
         subreport_data = data.get('subreportData', {})

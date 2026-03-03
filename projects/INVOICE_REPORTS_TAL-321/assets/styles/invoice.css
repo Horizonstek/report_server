@@ -1,0 +1,224 @@
+:root {
+  --primary-color: #00987a;
+  --secondary-color: #d4ede7;
+  --border-color: #b7e3d6;
+  --text-color: #333333;
+  --text-light: #555555;
+  --bg-light: #f8fbfb;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 1cm;
+  @bottom-center {
+    content: "صفحة " counter(page) " من " counter(pages);
+    font-family: "Cairo-Regular", sans-serif;
+    font-size: 9pt;
+    color: var(--text-light);
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Cairo-Regular", sans-serif;
+  font-size: 11pt;
+  color: var(--text-color);
+  direction: rtl;
+}
+
+.report-container {
+  width: 100%;
+}
+
+/* Subreport Containers */
+.subreport {
+  width: 100%;
+  margin-bottom: 5mm;
+  page-break-inside: avoid;
+}
+
+.subreport-I_DTL,
+.subreport-COMPANY_HEADER {
+  page-break-inside: auto; /* Allow items table to break across pages */
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.text-left {
+  text-align: left;
+}
+.font-bold {
+  font-weight: bold;
+}
+
+/* Grids and Layouts */
+.grid {
+  display: grid;
+  gap: 10px;
+}
+.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.grid-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.flex-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Specific Section Styles */
+
+/* 1. COMPANY HEADER */
+.company-header {
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+.company-header-main {
+  font-size: 16pt;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+.company-header-sub {
+  font-size: 11pt;
+  color: var(--text-light);
+}
+.invoice-title {
+  background-color: var(--secondary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 5px 20px;
+  font-size: 18pt;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* 2. REPORT HEADER (Customer/Supplier Info) */
+.info-section {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+.info-header {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: 6px 10px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+}
+.info-content {
+  padding: 10px;
+  background-color: var(--bg-light);
+}
+.info-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  margin-bottom: 4px;
+}
+.info-label {
+  font-weight: bold;
+  color: var(--text-light);
+}
+
+/* 3. DETAILS TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.data-table th {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 5px;
+  text-align: center;
+  font-size: 10pt;
+  border: 1px solid var(--primary-color);
+}
+.data-table td {
+  padding: 6px 5px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  font-size: 10pt;
+}
+.data-table tr:nth-child(even) {
+  background-color: var(--bg-light);
+}
+
+/* 4. FOOTER SUMMARY */
+.summary-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+.summary-amounts {
+  flex: 0 0 40%;
+}
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.summary-table th,
+.summary-table td {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+}
+.summary-table th {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  text-align: right;
+  width: 50%;
+}
+.summary-table td {
+  text-align: left;
+  font-weight: bold;
+}
+.summary-table tr.total-row th,
+.summary-table tr.total-row td {
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 12pt;
+}
+
+/* Signatures */
+.signatures {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 100px;
+}
+.signature-box {
+  text-align: center;
+  border-top: 1px solid var(--text-light);
+  width: 200px;
+  padding-top: 5px;
+}
+
+/* 5. COMPANY FOOTER */
+.company-footer {
+  border-top: 1px solid var(--primary-color);
+  padding-top: 10px;
+  text-align: center;
+  font-size: 9pt;
+  color: var(--text-light);
+}

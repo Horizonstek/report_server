@@ -24,6 +24,10 @@ class ProjectService:
         self.projects_dir = projects_dir
         os.makedirs(projects_dir, exist_ok=True)
         
+        # Trash directory for soft-deleted projects
+        self.trash_dir = os.path.join(os.path.dirname(projects_dir), '_trash')
+        os.makedirs(self.trash_dir, exist_ok=True)
+        
         # Samples directory for project templates
         server_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.samples_dir = os.path.join(server_root, 'samples')
@@ -244,13 +248,16 @@ class ProjectService:
     
     def delete_project(self, project_id: str) -> bool:
         """
-        Delete a project and all its contents
+        Soft-delete a project by moving it to the trash directory.
+        
+        The project folder is moved to _trash/<project_id>__<timestamp>
+        so it can be restored later.
         
         Args:
             project_id: Project identifier
             
         Returns:
-            True if deleted
+            True if moved to trash
             
         Raises:
             FileNotFoundError: If project doesn't exist
@@ -260,8 +267,156 @@ class ProjectService:
         if not os.path.exists(project_path):
             raise FileNotFoundError(f"Project '{project_id}' not found")
         
-        shutil.rmtree(project_path)
+        # Create trash entry name with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        trash_name = f"{project_id}__{timestamp}"
+        trash_path = os.path.join(self.trash_dir, trash_name)
+        
+        shutil.move(project_path, trash_path)
         return True
+    
+    # ==========================================
+    # Trash Management Methods
+    # ==========================================
+    
+    def list_trash(self) -> List[Dict[str, Any]]:
+        """
+        List all trashed projects
+        
+        Returns:
+            List of trashed project summaries with trash_id, name, and deleted_at
+        """
+        trashed = []
+        
+        if not os.path.exists(self.trash_dir):
+            return trashed
+        
+        for item in os.listdir(self.trash_dir):
+            item_path = os.path.join(self.trash_dir, item)
+            if os.path.isdir(item_path):
+                # Parse the trash folder name: <original_id>__<timestamp>
+                parts = item.rsplit('__', 1)
+                original_id = parts[0] if len(parts) == 2 else item
+                deleted_at = ''
+                if len(parts) == 2:
+                    try:
+                        dt = datetime.strptime(parts[1], '%Y%m%d_%H%M%S')
+                        deleted_at = dt.isoformat()
+                    except ValueError:
+                        deleted_at = parts[1]
+                
+                # Try to read the project name from project.json
+                name = original_id
+                config_path = os.path.join(item_path, 'project.json')
+                if os.path.exists(config_path):
+                    try:
+                        with open(config_path, 'r', encoding='utf-8') as f:
+                            config = json.load(f)
+                        name = config.get('name', original_id)
+                    except (json.JSONDecodeError, IOError):
+                        pass
+                
+                trashed.append({
+                    'trash_id': item,
+                    'original_id': original_id,
+                    'name': name,
+                    'deleted_at': deleted_at
+                })
+        
+        # Sort by deletion date (newest first)
+        return sorted(trashed, key=lambda x: x['deleted_at'], reverse=True)
+    
+    def restore_project(self, trash_id: str) -> Dict[str, Any]:
+        """
+        Restore a project from trash back to the projects directory.
+        
+        If a project with the same ID already exists, appends a suffix.
+        
+        Args:
+            trash_id: Trash entry identifier (e.g. "MyProject__20260302_120000")
+            
+        Returns:
+            Restored project info dict
+            
+        Raises:
+            FileNotFoundError: If trash entry doesn't exist
+        """
+        trash_path = os.path.join(self.trash_dir, trash_id)
+        
+        if not os.path.exists(trash_path):
+            raise FileNotFoundError(f"Trash entry '{trash_id}' not found")
+        
+        # Determine original project ID
+        parts = trash_id.rsplit('__', 1)
+        original_id = parts[0] if len(parts) == 2 else trash_id
+        
+        # Handle name collision: append _restored_N if needed
+        restore_id = original_id
+        restore_path = os.path.join(self.projects_dir, restore_id)
+        counter = 1
+        while os.path.exists(restore_path):
+            restore_id = f"{original_id}_restored_{counter}"
+            restore_path = os.path.join(self.projects_dir, restore_id)
+            counter += 1
+        
+        shutil.move(trash_path, restore_path)
+        
+        # Update project.json name if the ID was changed due to collision
+        if restore_id != original_id:
+            config_path = os.path.join(restore_path, 'project.json')
+            if os.path.exists(config_path):
+                try:
+                    with open(config_path, 'r', encoding='utf-8') as f:
+                        config = json.load(f)
+                    config['name'] = restore_id
+                    config['updated'] = datetime.now().isoformat()
+                    with open(config_path, 'w', encoding='utf-8') as f:
+                        json.dump(config, f, ensure_ascii=False, indent=2)
+                except (json.JSONDecodeError, IOError):
+                    pass
+        
+        return {
+            'id': restore_id,
+            'path': restore_path,
+            'original_id': original_id
+        }
+    
+    def permanently_delete_project(self, trash_id: str) -> bool:
+        """
+        Permanently delete a project from the trash (irreversible).
+        
+        Args:
+            trash_id: Trash entry identifier
+            
+        Returns:
+            True if permanently deleted
+            
+        Raises:
+            FileNotFoundError: If trash entry doesn't exist
+        """
+        trash_path = os.path.join(self.trash_dir, trash_id)
+        
+        if not os.path.exists(trash_path):
+            raise FileNotFoundError(f"Trash entry '{trash_id}' not found")
+        
+        shutil.rmtree(trash_path)
+        return True
+    
+    def empty_trash(self) -> int:
+        """
+        Permanently delete all projects in the trash.
+        
+        Returns:
+            Number of projects permanently deleted
+        """
+        count = 0
+        if os.path.exists(self.trash_dir):
+            for item in os.listdir(self.trash_dir):
+                item_path = os.path.join(self.trash_dir, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                    count += 1
+        return count
     
     def validate_project(self, project_id: str) -> Dict[str, Any]:
         """

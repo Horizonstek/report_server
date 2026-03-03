@@ -166,6 +166,54 @@ class DatabaseService:
             sql = sql[:-1].rstrip()
         return sql
     
+    def process_jasper_sql(self, sql: str, params: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+        """
+        Process Jasper-style syntax in SQL query:
+        - $P!{param_name} -> direct text substitution (e.g. for schema names)
+        - $P{param_name}  -> :param_name (Oracle bind variables)
+        
+        After processing, filters params to only include variables actually
+        referenced as bind placeholders in the final SQL.
+        """
+        if not sql:
+            return sql, params
+            
+        processed_sql = sql
+        
+        # 1. Handle $P!{param_name} - direct text substitution
+        pattern_text = r'\$P!\{([a-zA-Z0-9_]+)\}'
+        for match in re.finditer(pattern_text, processed_sql):
+            param_name = match.group(1)
+            # Find in params (case-insensitive fallback)
+            val = params.get(param_name)
+            if val is None:
+                val = next((v for k, v in params.items() if k.upper() == param_name.upper()), None)
+            
+            if val is not None:
+                processed_sql = processed_sql.replace(f'$P!{{{param_name}}}', str(val))
+            else:
+                raise ValueError(f"Missing required text substitution parameter: {param_name}")
+                
+        # 2. Handle $P{param_name} - replace with :param_name
+        pattern_bind = r'\$P\{([a-zA-Z0-9_]+)\}'
+        processed_sql = re.sub(pattern_bind, r':\1', processed_sql)
+        
+        # 3. Filter params to only include bind variables actually used in the SQL
+        #    This prevents DPY-4008 "no bind placeholder named :X was found" errors
+        bind_vars_in_sql = set(re.findall(r':([a-zA-Z_][a-zA-Z0-9_]*)', processed_sql))
+        filtered_params = {}
+        for var_name in bind_vars_in_sql:
+            # Exact match first
+            if var_name in params:
+                filtered_params[var_name] = params[var_name]
+            else:
+                # Case-insensitive fallback
+                match_key = next((k for k in params if k.upper() == var_name.upper()), None)
+                if match_key is not None:
+                    filtered_params[var_name] = params[match_key]
+        
+        return processed_sql, filtered_params
+    
     def execute_query(
         self,
         sql: str,
@@ -194,7 +242,8 @@ class DatabaseService:
             cursor.callTimeout = timeout * 1000  # Convert to milliseconds
             
             try:
-                cursor.execute(self._sanitize_sql(sql), params)
+                processed_sql, processed_params = self.process_jasper_sql(sql, params)
+                cursor.execute(self._sanitize_sql(processed_sql), processed_params)
                 
                 # Get column names
                 columns = [col[0] for col in cursor.description] if cursor.description else []
@@ -242,7 +291,8 @@ class DatabaseService:
             cursor.callTimeout = timeout * 1000
             
             try:
-                cursor.execute(self._sanitize_sql(sql), params)
+                processed_sql, processed_params = self.process_jasper_sql(sql, params)
+                cursor.execute(self._sanitize_sql(processed_sql), processed_params)
                 
                 columns = []
                 column_types = []

@@ -1,0 +1,53 @@
+select 
+	I.AMOUNT as AMOUNT,
+	I.DISCOUNT_AMOUNT as DISCOUNT_AMOUNT,
+	I.VAT1 as VAT1,
+	I.TOTAL as TOTAL,
+	
+	TAFKEET(I.AMOUNT) as AMOUNT_TEXT,
+	(select 
+		count(distinct ID.ITEM_ID)
+	 from 
+		$P!{P_SCHEMA_NAME}.INVOICE_DTL ID
+	 where  
+		ID.INVOICE_ID = $P{P_INVOICE_ID} 
+		and  ID.INVOICE_TYPE = $P{P_INVOICE_TYPE}
+	) as ITEMS_COUNT,
+	case when I.VAT_CH = 'N' then  0
+		else(ACDM.SETTING_2/100)
+	end VAT_PERCENT,
+	CI.FOOTER,
+	----
+	(select
+		nvl(sum(A.DEBIT), 0) - nvl(sum(A.CREDIT), 0) as BALANCE
+	from
+		$P!{P_SCHEMA_NAME}.ACCOUNTS A
+	where 
+		A.ACCOUNT_NO = (
+			select
+				case when I.INVOICE_TYPE < 20 then CUSTOMER_ACCOUNT
+				else SUPPLIER_ACCOUNT	
+				end 	
+			from
+				$P!{P_SCHEMA_NAME}.ACCOUNT_LINK_MV
+		)
+		and A.ACCOUNT_NO_DTL = I.ACCOUNT_NO_DTL
+	) as CURRENT_BALANCE,
+
+	case
+		when I.CASH_TYPE != 2 then 0
+		else case when I.INVOICE_TYPE < 20 then 1 else -1 end * I.AMOUNT
+	end as  TRANSACTION_AMOUNT,
+	------
+	I.QUANTITY_TOTAL
+	  
+from 
+	$P!{P_SCHEMA_NAME}.INVOICE I
+	left join $P!{P_SCHEMA_NAME}.APP_CATEGORY_SETTINGS_DTL_MV ACDM
+		on ACDM.CATEGORY_NO = I.INVOICE_TYPE
+		and ACDM.COMPANY_NO = I.COMPANY_NO
+	left join $P!{P_SCHEMA_NAME}.COMPANY_INFO CI 
+		on I.COMPANY_NO = CI.COMPANY_NO
+where 
+	I.INVOICE_ID = $P{P_INVOICE_ID}
+	and I.INVOICE_TYPE = $P{P_INVOICE_TYPE}

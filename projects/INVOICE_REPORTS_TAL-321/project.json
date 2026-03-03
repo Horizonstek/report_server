@@ -1,0 +1,105 @@
+{
+  "name": "INVOICE_REPORTS_TAL-321",
+  "version": "1.0.0",
+  "description": "Tax Invoice Report with dynamic schema and subreports",
+  "dataSource": "afaaq_100",
+  "author": "Oracle Report Studio",
+  "created": "2026-02-25T15:00:00.000000",
+  "updated": "2026-02-25T15:00:00.000000",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "1cm",
+      "right": "1cm",
+      "bottom": "1cm",
+      "left": "1cm"
+    },
+    "defaultFont": "Cairo"
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [
+    {
+      "id": "COMPANY_HEADER",
+      "template": "templates/COMPANY_HEADER.html",
+      "query": "queries/COMPANY_HEADER.sql",
+      "position": "inline"
+    },
+    {
+      "id": "REPORT_HEADER",
+      "template": "templates/REPORT_HEADER.html",
+      "query": "queries/REPORT_HEADER.sql",
+      "position": "inline"
+    },
+    {
+      "id": "I_DTL",
+      "template": "templates/I_DTL.html",
+      "query": "queries/I_DTL.sql",
+      "position": "inline"
+    },
+    {
+      "id": "FOOTER",
+      "template": "templates/FOOTER.html",
+      "query": "queries/FOOTER.sql",
+      "position": "inline"
+    },
+    {
+      "id": "COMPANY_FOOTER",
+      "template": "templates/COMPANY_FOOTER.html",
+      "query": "queries/COMPANY_FOOTER.sql",
+      "position": "inline"
+    }
+  ],
+  "assets": {
+    "fonts": [
+      "assets/fonts/Cairo-Regular.ttf"
+    ],
+    "images": [],
+    "styles": [
+      "assets/styles/invoice.css"
+    ]
+  },
+  "parameters": [
+    {
+      "name": "P_SESSION_ID",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "P_REPORT_BRANCH_NO",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "P_INVOICE_ID",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "P_INVOICE_TYPE",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "P_SUB_COMPANY_NO",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "P_SCHEMA_NAME",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "P_USER_ID",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "P_APP_COMPANY_NO",
+      "type": "string",
+      "required": false
+    }
+  ]
+}

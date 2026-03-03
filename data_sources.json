@@ -1,11 +1,24 @@
 {
   "default": {
-    "user": "",
-    "password": "",
+    "user": "afaaq_as_rpt",
+    "password": "AfrptMa_615",
     "dsn": "",
-    "host": "localhost",
+    "host": "horizonstek.ddns.net",
     "port": 1521,
-    "service_name": "",
+    "service_name": "horizonpdb",
+    "sid": "",
+    "pool_min": 1,
+    "pool_max": 5,
+    "pool_increment": 1,
+    "query_timeout": 30
+  },
+  "afaaq_100": {
+    "user": "afaaq_as_rpt",
+    "password": "AfrptMa_615",
+    "dsn": "",
+    "host": "horizonstek.ddns.net",
+    "port": 1521,
+    "service_name": "horizonpdb",
     "sid": "",
     "pool_min": 1,
     "pool_max": 5,

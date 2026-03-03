@@ -178,12 +178,17 @@ def render_report():
         # --- Find the project ---
         project, proj_svc = _find_project(rep_name)
         project_config = project['config']
+        logger.info(f"[REPORT] Found project: {project.get('id', 'unknown')}")
         
         # --- Extract SQL bind parameters ---
         bind_params = _extract_bind_params(args)
+        logger.info(f"[REPORT] Bind params from URL: {list(bind_params.keys())}")
         
         # --- Get database service ---
         db_svc = _get_db_service(datasource_name)
+        logger.info(f"[REPORT] DB service for '{datasource_name}': {'Available' if db_svc else 'None'}")
+        if db_svc:
+            logger.info(f"[REPORT] DB configured: {db_svc.is_configured()}, available: {db_svc.is_available()}")
         
         # --- Initialize sub-report service ---
         subreport_service = SubReportService(project['path'], project_config)
@@ -194,14 +199,29 @@ def render_report():
         if main_query_path and db_svc:
             try:
                 sql = subreport_service.get_query_content(main_query_path)
+                logger.info(f"[REPORT] Executing main query: {main_query_path}")
                 result = db_svc.execute_query_with_metadata(sql, bind_params)
                 main_data = {
                     'rows': result['rows'],
                     'columns': result['columns'],
                     'row_count': result['row_count']
                 }
+                logger.info(f"[REPORT] Main query returned {result['row_count']} rows, columns: {result['columns']}")
             except Exception as e:
-                logger.warning(f"Main query execution failed: {e}")
+                logger.warning(f"[REPORT] Main query execution failed: {e}")
+        else:
+            logger.warning(f"[REPORT] Skipping main query: mainQuery={main_query_path}, db_svc={'yes' if db_svc else 'None'}")
+                
+        # --- Auto-inject main query fields into bind_params for subreports ---
+        if main_data and main_data.get('rows') and len(main_data['rows']) > 0:
+            first_row = main_data['rows'][0]
+            for key, value in first_row.items():
+                if value is not None:
+                    if key not in bind_params:
+                        bind_params[key] = value
+                    if f"P_{key}" not in bind_params:
+                        bind_params[f"P_{key}"] = value
+            logger.info(f"[REPORT] After auto-inject, bind params: {list(bind_params.keys())}")
         
         # --- Execute sub-report queries ---
         subreport_data = {}
@@ -211,15 +231,19 @@ def render_report():
             if sr_id and sr_query and db_svc:
                 try:
                     sql = subreport_service.get_query_content(sr_query)
+                    logger.info(f"[REPORT] Executing subreport query: {sr_id} ({sr_query})")
                     result = db_svc.execute_query_with_metadata(sql, bind_params)
                     subreport_data[sr_id] = {
                         'rows': result['rows'],
                         'columns': result['columns'],
                         'row_count': result['row_count']
                     }
+                    logger.info(f"[REPORT] Subreport '{sr_id}' returned {result['row_count']} rows")
                 except Exception as e:
-                    logger.warning(f"Sub-report '{sr_id}' query failed: {e}")
+                    logger.warning(f"[REPORT] Sub-report '{sr_id}' query failed: {e}")
                     subreport_data[sr_id] = {}
+            else:
+                logger.warning(f"[REPORT] Skipping subreport '{sr_id}': query={sr_query}, db_svc={'yes' if db_svc else 'None'}")
         
         # Add bind params as template variables too (for direct use in templates)
         main_data.update(bind_params)
