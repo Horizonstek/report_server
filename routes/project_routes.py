@@ -916,10 +916,14 @@ def get_file_content(project_id):
         project = project_service.load_project(project_id)
         
         # Prevent directory traversal
-        safe_path = os.path.normpath(f"/{file_path_req}").lstrip('/')
-        # Windows compatibility: replace backslashes if any
-        safe_path = safe_path.replace('\\', '/')
+        # Clean path safely for both Windows and Linux
+        safe_path = str(file_path_req).replace('\\', '/').lstrip('/')
+        safe_path = os.path.normpath(safe_path)
         
+        # Additional safety check
+        if safe_path.startswith('..') or os.path.isabs(safe_path):
+            return jsonify({'error': 'Invalid file path'}), 403
+            
         full_path = os.path.join(project['path'], safe_path)
         
         # Verify it's within project directory
@@ -972,8 +976,13 @@ def update_file_content(project_id):
         project = project_service.load_project(project_id)
         
         # Prevent directory traversal
-        safe_path = os.path.normpath(f"/{file_path_req}").lstrip('/')
-        safe_path = safe_path.replace('\\', '/')
+        safe_path = str(file_path_req).replace('\\', '/').lstrip('/')
+        safe_path = os.path.normpath(safe_path)
+        
+        # Additional safety check
+        if safe_path.startswith('..') or os.path.isabs(safe_path):
+            return jsonify({'error': 'Invalid file path'}), 403
+            
         full_path = os.path.join(project['path'], safe_path)
         
         # Verify it's within project directory
