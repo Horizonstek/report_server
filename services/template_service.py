@@ -48,6 +48,9 @@ class TemplateService:
         self.env.filters['default_if_none'] = lambda value, default='': (
             default if value is None else value
         )
+        
+        # QR Code filter (generates QR code image from base64 data)
+        self.env.filters['qrcode'] = self._generate_qrcode
     
     def _register_custom_globals(self):
         """Register global variables and functions"""
@@ -66,6 +69,49 @@ class TemplateService:
         if isinstance(value, datetime):
             return value.strftime(format_str)
         return str(value)
+    
+    def _generate_qrcode(self, data, size=150) -> str:
+        """
+        Generate a QR code image from data and return as a base64 data URI.
+        
+        Args:
+            data: The data to encode in the QR code (base64 string or plain text)
+            size: Size of the QR code image in pixels (default: 150)
+            
+        Returns:
+            Data URI string (data:image/png;base64,...) for use in <img src>
+        """
+        import base64
+        import io
+        
+        if data is None or str(data).strip() == '':
+            return ''
+        
+        try:
+            import qrcode
+            from qrcode.constants import ERROR_CORRECT_L
+            
+            qr = qrcode.QRCode(
+                version=None,
+                error_correction=ERROR_CORRECT_L,
+                box_size=10,
+                border=1,
+            )
+            qr.add_data(str(data))
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color='black', back_color='white')
+            
+            # Convert to base64 data URI
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            b64 = base64.b64encode(buffer.getvalue()).decode('ascii')
+            return f"data:image/png;base64,{b64}"
+            
+        except ImportError:
+            return ''
+        except Exception:
+            return ''
     
     def render_template(
         self,

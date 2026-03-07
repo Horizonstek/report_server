@@ -1,0 +1,54 @@
+select L3.COMPANY_NAME as BRANCH_NAME, L3.COMPANY_NAME_E as BRANCH_NAME_E,
+       L2.COMPANY_NAME as COMPANY_NAME, L2.COMPANY_NAME_E as COMPANY_NAME_E,L2.FOOTER as COMPANY_FOOTER,
+       L1.COMPANY_NAME as MAIN_COMPANY_NAME, L1.COMPANY_NAME_E as MAIN_COMPANY_NAME_E,
+       L2.LOGO,
+		
+	   (select USER_NAME_A
+	   from $P!{P_SCHEMA_NAME}.SEC_USER
+	   where USER_ID = $P{P_USER_ID} ) as WORKSPACE,
+	   
+	   case when $P{P_CLIENT_ID} = 'SAS-280' and I.INVOICE_TYPE = 13 then 'فاتورة مبيعات'
+			when $P{P_CLIENT_ID} = 'SAS-280' and I.INVOICE_TYPE = 14 then 'فاتورة مردود مبيعات'
+			when $P{P_CLIENT_ID} = 'SAS-241' and $P{P_INVOICE_TYPE} = 11 then 'فاتورة'
+		else
+			(select DOC_TYPE_NAME 
+				from AFAAQ_AS_DEV.ACCOUNTS_DOC_TYPE
+				where DOC_TYPE_NO = $P{P_INVOICE_TYPE}   
+			)
+		end
+			|| 
+		case when to_number($P{P_INVOICE_TYPE}) = 23 or I.VAT_CH = 'N' then ''
+			else ' ضريبية  '
+		end as INVOICE_TITLE,
+       
+		 L2.VAT_NO  as  COMP_VAT_NO,
+		 	
+		L2.COMPANY_DESCRIPTION1 as ADDRESS,
+		L2.COMPANY_DESCRIPTION1_E as ADDRESS_E,
+		L2.COMMERCE_REGISTER,
+	    L2.COMPANY_ADDRESS_PHONE|| '    ' ||L3.COMPANY_ADDRESS_PHONE as PHONE,
+		SV.SETTING_VALUE as SHOW_MAIN_COMPANY
+		
+     
+from 
+	$P!{P_SCHEMA_NAME}.COMPANY_INFO L3
+	cross join(
+		select
+				SETTING_VALUE
+			from
+				$P!{P_SCHEMA_NAME}.APP_GENERAL_SETTINGS_DTL
+				
+			where
+				CATEGORY_NO = 1000
+				and SETTING_KEY = 11
+	) SV
+	inner join $P!{P_SCHEMA_NAME}.COMPANY_INFO L2
+		on L3.MAIN_COMPANY_ID = L2.COMPANY_NO
+	inner join $P!{P_SCHEMA_NAME}.COMPANY_INFO L1
+		on L2.MAIN_COMPANY_ID = L1.COMPANY_NO
+	inner join $P!{P_SCHEMA_NAME}.INVOICE I
+		on L3.COMPANY_NO = I.COMPANY_NO
+where	
+	I.INVOICE_ID =  $P{P_INVOICE_ID} 
+	and I.INVOICE_TYPE =  $P{P_INVOICE_TYPE}
+	and L3.COMPANY_NO = $P{P_APP_COMPANY_NO}

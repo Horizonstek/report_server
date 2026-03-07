@@ -1,0 +1,51 @@
+{
+  "name": "INVOICE_REPORTS_SAS-303",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "created": "2026-03-05T18:52:02.163037",
+  "updated": "2026-03-06T01:25:26.546735",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "2cm",
+      "right": "1.5cm",
+      "bottom": "2cm",
+      "left": "1.5cm"
+    },
+    "defaultFont": null
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [
+    {
+      "id": "POR_PAGE_HEADER_INVOICE_REPORTS",
+      "template": "templates/POR_PAGE_HEADER_INVOICE_REPORTS.html",
+      "query": "queries/POR_PAGE_HEADER_INVOICE_REPORTS.sql",
+      "position": "inline"
+    },
+    {
+      "id": "REPORT_HEADER",
+      "template": "templates/REPORT_HEADER.html",
+      "query": "queries/REPORT_HEADER.sql",
+      "position": "inline"
+    },
+    {
+      "id": "I_DTL",
+      "template": "templates/I_DTL.html",
+      "query": "queries/I_DTL.sql",
+      "position": "inline"
+    }
+  ],
+  "assets": {
+    "fonts": [
+      "assets/fonts/Cairo-Regular.ttf"
+    ],
+    "images": [],
+    "styles": [
+      "assets/styles/styles.css"
+    ]
+  },
+  "parameters": []
+}

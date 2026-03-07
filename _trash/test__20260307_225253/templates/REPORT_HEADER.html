@@ -1,0 +1,138 @@
+<div class="subreport subreport-REPORT_HEADER">
+
+{% set row = rows[0] if rows else {} %}
+
+<div class="invoice-section">
+
+    <!-- Customer -->
+    <div class="info-box">
+
+        <div class="box-title">بيانات العميل</div>
+
+        <table class="info-table">
+            <tr>
+                <td class="value">{{ row.CUST_NAME }}</td>
+                <td class="label">الاسم</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.CUST_BUILDING_NO }}</td>
+                <td class="label">المبنى</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.CUST_STREET_NAME }}</td>
+                <td class="label">الشارع</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.CUST_DISTRICT_NAME }}</td>
+                <td class="label">الحي</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.CUST_CITY_NAME }}</td>
+                <td class="label">المدينة</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.CUST_ZIP_CODE }}</td>
+                <td class="label">الرمز البريدي</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.CUST_VAT_NO }}</td>
+                <td class="label">الرقم الضريبي</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.CUST_COMMERCE_REGISTER }}</td>
+                <td class="label">السجل التجاري</td>
+            </tr>
+        </table>
+
+    </div>
+
+
+    <!-- Supplier -->
+    <div class="info-box">
+
+        <div class="box-title">بيانات المورد</div>
+
+        <table class="info-table">
+            <tr>
+                <td class="value">{{ row.SUP_NAME }}</td>
+                <td class="label">الاسم</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.SUP_BUILDING_NO }}</td>
+                <td class="label">المبنى</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.SUP_STREET_NAME }}</td>
+                <td class="label">الشارع</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.SUP_DISTRICT_NAME }}</td>
+                <td class="label">الحي</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.SUP_CITY_NAME }}</td>
+                <td class="label">المدينة</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.SUP_ZIP_CODE }}</td>
+                <td class="label">الرمز البريدي</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.SUP_VAT_NO }}</td>
+                <td class="label">الرقم الضريبي</td>
+            </tr>
+
+            <tr>
+                <td class="value">{{ row.SUP_COMMERCE_REGISTER }}</td>
+                <td class="label">السجل التجاري</td>
+            </tr>
+        </table>
+
+    </div>
+
+
+    <!-- QR + Invoice info -->
+    <div class="invoice-meta">
+
+        {% if row.QRCODE %}
+        <img src="data:image/png;base64,{{ row.QRCODE }}" class="qr">
+        {% endif %}
+
+        <div class="meta-item">
+            <div class="meta-label">رقم الفاتورة</div>
+            <div class="meta-value">{{ row.INVOICE_ID }}</div>
+        </div>
+
+        <div class="meta-item">
+            <div class="meta-label">وقت الفاتورة</div>
+            <div class="meta-value">{{ row.INVOICE_TIME }}</div>
+        </div>
+
+        <div class="meta-item">
+            <div class="meta-label">تاريخ التوريد</div>
+            <div class="meta-value">{{ row.INVOICE_DATE | date('YYYY-MM-DD') }}</div>
+        </div>
+
+        <div class="meta-item">
+            <div class="meta-label">المندوب</div>
+            <div class="meta-value">{{ row.SR_NAME }}</div>
+        </div>
+
+    </div>
+
+</div>
+
+</div>

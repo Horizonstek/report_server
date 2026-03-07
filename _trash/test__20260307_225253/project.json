@@ -1,0 +1,45 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "created": "2026-03-04T15:22:42.250829",
+  "updated": "2026-03-05T18:08:24.023738",
+  "settings": {
+    "pageSize": "A4",
+    "orientation": "portrait",
+    "margins": {
+      "top": "2cm",
+      "right": "1.5cm",
+      "bottom": "2cm",
+      "left": "1.5cm"
+    },
+    "defaultFont": null
+  },
+  "mainTemplate": "templates/main.html",
+  "mainQuery": "queries/main.sql",
+  "subReports": [
+    {
+      "id": "POR_PAGE_HEADER_INVOICE_REPORTS",
+      "template": "templates/POR_PAGE_HEADER_INVOICE_REPORTS.html",
+      "query": "queries/POR_PAGE_HEADER_INVOICE_REPORTS.sql",
+      "position": "inline"
+    },
+    {
+      "id": "REPORT_HEADER",
+      "template": "templates/REPORT_HEADER.html",
+      "query": "queries/REPORT_HEADER.sql",
+      "position": "inline"
+    }
+  ],
+  "assets": {
+    "fonts": [
+      "assets/fonts/Cairo-Regular.ttf"
+    ],
+    "images": [],
+    "styles": [
+      "assets/styles/styles.css"
+    ]
+  },
+  "parameters": []
+}

@@ -1,0 +1,65 @@
+<div class="subreport subreport-POR_PAGE_HEADER_INVOICE_REPORTS">
+  {% set header = rows[0] if rows else {} %}
+
+  <div class="invoice-header">
+    <div class="header-left">
+      <div class="company-name">
+        {{ header.MAIN_COMPANY_NAME_E | default('') }}
+      </div>
+      <div>{{ header.COMPANY_NAME_E | default('') }}</div>
+      <div>{{ header.BRANCH_NAME_E | default('') }}</div>
+
+      <div>{{ header.ADDRESS_E | default('') }}</div>
+
+      <div>
+        CR / <span dir="ltr">{{ header.COMMERCE_REGISTER | default('') }}</span>
+      </div>
+      <div>
+        VAT NO / <span dir="ltr">{{ header.COMP_VAT_NO | default('') }}</span>
+      </div>
+
+      <div>
+        Phone NO /
+        <span dir="ltr">{{ header.PHONE | default('') }}</span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      {% if header.LOGO %}
+      <img src="{{ header.LOGO | asset_url }}" class="logo" />
+      {% endif %}
+
+      <div class="invoice-title">
+        {{ header.INVOICE_TITLE | default('فاتورة ضريبية') }}
+      </div>
+    </div>
+
+    <div class="header-right">
+      {% if header.SHOW_MAIN_COMPANY == 'Y' %}
+      <div class="company-name">
+        {{ header.MAIN_COMPANY_NAME | default('') }}
+      </div>
+      {% endif %}
+
+      <div>{{ header.COMPANY_NAME | default('') }}</div>
+      <div>{{ header.BRANCH_NAME | default('') }}</div>
+
+      <div>العنوان / {{ header.ADDRESS | default('') }}</div>
+
+      <div>
+        السجل التجاري /
+        <span dir="ltr">{{ header.COMMERCE_REGISTER | default('') }}</span>
+      </div>
+
+      <div>
+        الرقم الضريبي /
+        <span dir="ltr">{{ header.COMP_VAT_NO | default('') }}</span>
+      </div>
+
+      <div>
+        رقم الجوال /
+        <span dir="ltr">{{ header.PHONE | default('') }}</span>
+      </div>
+    </div>
+  </div>
+</div>
